@@ -2,7 +2,6 @@
 
 namespace App\Database\Migrations;
 
-// use \CodeIgniter\Database\Migration;
 
 class User extends \CodeIgniter\Database\Migration
 {
@@ -37,6 +36,11 @@ class User extends \CodeIgniter\Database\Migration
                 'constraint' => ['admin', 'user'], 
                 'default' => 'user',
                 'null'    => false,
+            ],
+            'profile_image' => [
+                'type' => 'VARCHAR',
+                'constraint' => '255',
+                'null' => true,
             ],
         ]);
         $this->forge->addKey('id', true);

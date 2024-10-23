@@ -35,15 +35,16 @@ class UserModel extends Model
     protected $updatedField  = 'updated_at';
     protected $deletedField  = 'deleted_at';
 
-    // Validation
-    // protected $validationRules      = [
-    //     'name' => 'required',
-    //     'email' => 'required',
-    //     'phone' => 'required',
-    //     'password' => 'required',
-    //     #ensure that a field's value is one of a specified list 
-    //     'user_type' => 'in_list[user,admin]',
-    // ];
+    #Validation
+    protected $validationRules      = [
+        'name' => 'required',
+        'email' => 'required',
+        'phone' => 'required',
+        'password' => 'required',
+        #ensure that a field's value is one of a specified list 
+        'user_type' => 'in_list[user,admin]',
+        'profile_image' => 'required'
+    ];
     protected $validationMessages   = [];
     protected $skipValidation       = false;
     protected $cleanValidationRules = true;
@@ -51,7 +52,6 @@ class UserModel extends Model
     // Callbacks
     protected $allowCallbacks = true;
     protected $beforeInsert   = ['hashPassword'];
-    // protected $afterInsert    = ['hashPassword'];
     protected $beforeUpdate   = [];
     protected $afterUpdate    = [];
     protected $beforeFind     = [];

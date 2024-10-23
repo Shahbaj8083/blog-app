@@ -4,39 +4,31 @@ namespace App\Controllers;
 
 use App\Controllers\BaseController;
 use App\Models\UserModel;
-use CodeIgniter\HTTP\ResponseInterface;
 
 class UserController extends BaseController
 {
+
+    public function __construct()
+    {
+        #loading mail helper function
+        helper('email');
+    }
+
     public function login()
     {
-        if($this->request->getMethod() === 'POST'){
+        if ($this->request->getMethod() === 'POST') {
             $model = new UserModel();
             $username = trim($this->request->getPost('username'));
-            echo "Username from POST: " . htmlspecialchars($username) . "<br>";
-            $username = htmlspecialchars($username); // Sanitize the input
             $password = $this->request->getPost('password');
 
             #validate credentials
             $user = $model->where('name', $username)->first();
-            // $db = \Config\Database::connect(); // Connect to the database
-            // $user = $db->query('Select * from users limit 1;');
-            dd($user);
-               
-            if (!$user) {
-                echo "User not found"; // This will help debug if the user isn't found
-            } else {
-                // You can print user info for debugging
-                echo "<pre>";
-                print_r($user);
-                echo "</pre>";
-            }
-            if($user && password_verify($password, $user['password'])){
+
+            if ($user && password_verify($password, $user['password'])) {
                 #set user session
                 $this->setUserSession($user);
                 return redirect()->to('dashboard');
-            }
-            else{
+            } else {
                 session()->setFlashdata('error', 'Invalid username or password');
                 return redirect()->to('login');
             }
@@ -46,43 +38,68 @@ class UserController extends BaseController
 
     public function register()
     {
-        // print_r($this->request->getMethod());
-        if($this->request->getMethod() === 'POST'){
-            // $request = \Config\Services::request();
+        if ($this->request->getMethod() === 'POST') {
             $model = new UserModel();
             $data = [
                 'name' => $this->request->getPost('name'),
                 'email' => $this->request->getPost('email'),
                 'phone' => $this->request->getPost('phone'),
-                'password' => $this->request->getPost('password'),
+                'password' => password_hash($this->request->getPost('password'), PASSWORD_BCRYPT), // Hashing password
                 'user_type' => $this->request->getPost('user_type')
             ];
-            
-            if($model->insert($data)){
-                return redirect()->to('login')->with('success', 'Registration successful!');
-            }else{
-                session()->setFlashdata('error', 'Registration failed!');
+            $file = $this->request->getFile('profile_image');
+
+            try {
+                if ($file && $file->isValid()) {
+                    $fileNameToStore = $file->store();
+                    $data['profile_image'] = 'uploads/' . $fileNameToStore;
+                } else {
+                    $data['profile_image'] = null;
+                }
+
+                if ($model->insert($data)) {
+                    # Send email notification
+                    $to = $data['email'];
+                    $subject = 'Welcome to Our Service!';
+                    $message = 'Dear ' . $data['name'] . ',<br>Thank you for registering!';
+                    sendEmail($to, $subject, $message);
+                    return redirect()->to('login')->with('success', 'Registration successful!');
+                } else {
+                    $errors = $model->errors();
+                    session()->setFlashdata('errors', $errors);
+                    session()->setFlashdata('error', 'Registration failed!');
+                    return redirect()->to('register');
+                }
+            } catch (\Exception $e) {
+                session()->setFlashdata('error', 'An error occurred during registration: ' . $e->getMessage());
                 return redirect()->to('register');
             }
         }
-        return view('users/register');
-        
-
+        return view('users/register', ['errors' => session()->getFlashdata('errors')]);
     }
+
 
     public function dashboard()
     {
+
         # checks if the user is logged in by looking
         # for a session variable named isLoggedIn
         if (!session()->get('isLoggedIn')) {
             #if not login redirect to /login route
             return redirect()->to('login');
         }
-
-        return view('users/dashboard');
+        $dashboard = new DashboardController();
+        try {
+            $data = $dashboard->index();
+            return view('users/dashboard', ['users' => $data]);
+        } catch (\Exception $e) {
+            session()->setFlashdata('error', 'An error occurred while fetching dashboard data: ' . $e->getMessage());
+            return redirect()->to('login');
+        }
     }
 
-    private function setUserSession($user){
+    private function setUserSession($user)
+    {
         $data = [
             'id' => $user['id'],
             'username' => $user['name'],
@@ -90,5 +107,11 @@ class UserController extends BaseController
         ];
         session()->set($data);
         return true;
+    }
+
+    public function logout()
+    {
+        session()->destroy();
+        return redirect()->to('login');
     }
 }

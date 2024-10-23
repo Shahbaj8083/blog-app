@@ -10,6 +10,19 @@ class Email extends BaseConfig
     public string $fromName   = '';
     public string $recipients = '';
 
+
+
+    // Looking to send emails in production? Check out our Email API/SMTP product!
+// $config = Array(
+//     'protocol' => 'smtp',
+//     'smtp_host' => 'sandbox.smtp.mailtrap.io',
+//     'smtp_port' => 2525,
+//     'smtp_user' => '86d3815ad4dc19',
+//     'smtp_pass' => '049db8f14b180a',
+//     'smtp_crypto' => 'tls',
+//     'crlf' => "\r\n",
+//     'newline' => "\r\n"
+//   );
     /**
      * The "user agent"
      */
@@ -18,7 +31,7 @@ class Email extends BaseConfig
     /**
      * The mail sending protocol: mail, sendmail, smtp
      */
-    public string $protocol = 'mail';
+    public string $protocol = 'smtp';
 
     /**
      * The server path to Sendmail.
@@ -28,22 +41,22 @@ class Email extends BaseConfig
     /**
      * SMTP Server Hostname
      */
-    public string $SMTPHost = '';
+    public string $SMTPHost = 'sandbox.smtp.mailtrap.io';
 
     /**
      * SMTP Username
      */
-    public string $SMTPUser = '';
+    public string $SMTPUser = '86d3815ad4dc19';
 
     /**
      * SMTP Password
      */
-    public string $SMTPPass = '';
+    public string $SMTPPass = '049db8f14b180a';
 
     /**
      * SMTP Port
      */
-    public int $SMTPPort = 25;
+    public int $SMTPPort = 2525;
 
     /**
      * SMTP Timeout (in seconds)
@@ -77,7 +90,7 @@ class Email extends BaseConfig
     /**
      * Type of mail, either 'text' or 'html'
      */
-    public string $mailType = 'text';
+    public string $mailType = 'html';
 
     /**
      * Character set (utf-8, iso-8859-1, etc.)
