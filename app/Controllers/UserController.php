@@ -4,6 +4,8 @@ namespace App\Controllers;
 
 use App\Controllers\BaseController;
 use App\Models\UserModel;
+use CodeIgniter\Debug\Timer;
+
 
 class UserController extends BaseController
 {
@@ -16,6 +18,9 @@ class UserController extends BaseController
 
     public function login()
     {
+        # Start benchmarking
+        $timer = new Timer();
+        $timer->start('login_process');
         if ($this->request->getMethod() === 'POST') {
             $model = new UserModel();
             $username = trim($this->request->getPost('username'));
@@ -33,6 +38,10 @@ class UserController extends BaseController
                 return redirect()->to('login');
             }
         }
+        // Stop benchmarking
+        $timer->stop('login_process');
+        // Log the execution time
+        log_message('info', 'Login method execution time: ' . $timer->getElapsedTime('login_process') . ' seconds');
         return view('users/login');
     }
 

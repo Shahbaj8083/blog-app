@@ -12,10 +12,10 @@ if (!function_exists('sendEmail')) {
         if (!$email->send()) {
             // Log any errors that occur during sending
             log_message('error', $email->printDebugger(['headers']));
-            return false; // Email not sent
+            return false;
         }
 
-        return true; // Email sent successfully
+        return true; 
     }
 }
 

@@ -9,13 +9,18 @@ use CodeIgniter\HTTP\ResponseInterface;
 class DashboardController extends BaseController
 {
     public $model;
+    public $db;
     public function __construct()
     {
         $this->model = new UserModel();
+        $this->db = \Config\Database::connect();
+
     }
     public function index()
     {
         $users = $this->model->findAll();
+        // $users = $this->db->table('users');
+        // dd($users);
         return $users;
     }
 
